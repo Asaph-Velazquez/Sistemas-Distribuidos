@@ -1,6 +1,6 @@
-package backend.Combat;
+package backend.combat;
 
-import backend.Entity;
+import backend.entities.Entity;
 
 public class Enemy extends Entity {
 

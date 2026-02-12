@@ -1,6 +1,10 @@
-package backend;
+package backend.commands;
 
-import backend.Combat.Enemy;
+import backend.combat.Enemy;
+import backend.core.GameState;
+import backend.entities.Player;
+import backend.world.World;
+import backend.game.GameMode;
 
 public class CommandProcessor {
 

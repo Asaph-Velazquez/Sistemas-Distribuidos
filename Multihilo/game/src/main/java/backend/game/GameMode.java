@@ -1,4 +1,4 @@
-package backend;
+package backend.game;
 
 public class GameMode {
     public enum Mode {

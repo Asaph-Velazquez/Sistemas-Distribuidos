@@ -1,6 +1,4 @@
-package backend;
-//Keyboard input thread
-
+package backend.threads;
 import java.util.Scanner;
 import java.util.concurrent.BlockingDeque;
 

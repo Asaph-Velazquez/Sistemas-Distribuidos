@@ -28,26 +28,41 @@ Proyecto de juego en consola desarrollado en Java que implementa un sistema mult
 
 ## 📦 Estructura del Proyecto
 
+El proyecto está organizado en módulos según su funcionalidad:
+
 ```
 game/
 ├── src/
 │   ├── main/
 │   │   └── java/
 │   │       └── backend/
-│   │           ├── Main.java              # Punto de entrada
-│   │           ├── GameLoop.java          # Loop principal del juego
-│   │           ├── GameState.java         # Estado global del juego
-│   │           ├── InputThread.java       # Hilo de entrada
-│   │           ├── RenderThread.java      # Hilo de renderizado
-│   │           ├── WorldClock.java        # Reloj del mundo
-│   │           ├── CommandProcessor.java  # Procesador de comandos
-│   │           ├── Player.java            # Clase del jugador
-│   │           ├── Entity.java            # Entidad base
-│   │           ├── World.java             # Mundo del juego
-│   │           ├── GameMode.java          # Modos de juego
-│   │           └── Combat/
-│   │               ├── CombatSystem.java  # Sistema de combate
-│   │               └── Enemy.java         # Enemigos
+│   │           ├── core/                  # Núcleo del juego
+│   │           │   ├── Main.java          # Punto de entrada
+│   │           │   ├── GameState.java     # Estado global
+│   │           │   └── GameLoop.java      # Loop principal
+│   │           │
+│   │           ├── threads/               # Hilos del sistema
+│   │           │   ├── InputThread.java   # Entrada de usuario
+│   │           │   ├── RenderThread.java  # Renderizado
+│   │           │   └── WorldClock.java    # Reloj del mundo
+│   │           │
+│   │           ├── entities/              # Entidades del juego
+│   │           │   ├── Entity.java        # Clase base
+│   │           │   └── Player.java        # Jugador
+│   │           │
+│   │           ├── world/                 # Sistema del mundo
+│   │           │   └── World.java         # Mundo 2D
+│   │           │
+│   │           ├── combat/                # Sistema de combate
+│   │           │   ├── CombatSystem.java  # Lógica de combate
+│   │           │   └── Enemy.java         # Enemigos
+│   │           │
+│   │           ├── commands/              # Procesamiento de comandos
+│   │           │   └── CommandProcessor.java
+│   │           │
+│   │           └── game/                  # Configuración del juego
+│   │               └── GameMode.java      # Modos de juego
+│   │
 │   └── test/
 │       └── java/
 │           └── backend/
@@ -55,6 +70,18 @@ game/
 ├── pom.xml
 └── README.md
 ```
+
+## 📋 Organización Modular
+
+El proyecto sigue una arquitectura modular clara para facilitar el mantenimiento y escalabilidad:
+
+- **core**: Contiene las clases fundamentales del juego (Main, GameState, GameLoop)
+- **threads**: Agrupa todos los hilos del sistema (InputThread, RenderThread, WorldClock)
+- **entities**: Define las entidades del juego (Entity, Player)
+- **world**: Maneja la lógica del mundo 2D (World)
+- **combat**: Sistema completo de combate (CombatSystem, Enemy)
+- **commands**: Procesamiento de comandos del usuario (CommandProcessor)
+- **game**: Configuración y modos de juego (GameMode)
 
 ## 🚀 Instalación y Ejecución
 
@@ -75,10 +102,10 @@ mvn clean compile
 mvn exec:java
 ```
 
-O ejecutar directamente la clase Main:
+O ejecutar directamente especificando la clase Main:
 
 ```bash
-mvn exec:java -Dexec.mainClass="backend.Main"
+mvn exec:java -Dexec.mainClass="backend.core.Main"
 ```
 
 ### Ejecutar Tests

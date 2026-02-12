@@ -1,4 +1,7 @@
-package backend;
+package backend.threads;
+
+import backend.core.GameState;
+import backend.game.GameMode;
 
 public class WorldClock implements Runnable {
     public GameState gameState;

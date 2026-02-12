@@ -1,6 +1,9 @@
-package backend;
+package backend.core;
 
-import backend.Combat.CombatSystem;
+import backend.combat.CombatSystem;
+import backend.game.GameMode;
+import backend.entities.Player;
+import backend.world.World;
 
 public class GameState {
     private volatile boolean running = true;

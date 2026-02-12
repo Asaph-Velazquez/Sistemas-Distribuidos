@@ -34,7 +34,7 @@
         <artifactId>exec-maven-plugin</artifactId>
         <version>3.1.0</version>
         <configuration>
-          <mainClass>backend.Main</mainClass>
+          <mainClass>backend.core.Main</mainClass>
         </configuration>
       </plugin>
     </plugins>

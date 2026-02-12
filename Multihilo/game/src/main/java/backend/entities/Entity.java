@@ -1,4 +1,4 @@
-package backend;
+package backend.entities;
 
 public abstract class Entity {
 

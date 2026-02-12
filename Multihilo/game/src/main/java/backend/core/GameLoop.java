@@ -1,7 +1,9 @@
-package backend;
+package backend.core;
 
 import java.util.concurrent.BlockingQueue;
-import backend.Combat.CombatSystem;
+import backend.combat.CombatSystem;
+import backend.commands.CommandProcessor;
+import backend.game.GameMode;
 
 public class GameLoop implements Runnable {
 

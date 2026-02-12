@@ -1,7 +1,11 @@
-package backend;
+package backend.threads;
 
-import backend.Combat.CombatSystem;
-import backend.Combat.Enemy;
+import backend.combat.CombatSystem;
+import backend.combat.Enemy;
+import backend.core.GameState;
+import backend.game.GameMode;
+import backend.world.World;
+import backend.entities.Player;
 
 public class RenderThread implements Runnable {
 

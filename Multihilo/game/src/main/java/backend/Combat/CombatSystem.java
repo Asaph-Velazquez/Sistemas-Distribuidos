@@ -1,9 +1,9 @@
-package backend.Combat;
+package backend.combat;
 
 import java.util.concurrent.BlockingQueue;
-import backend.GameState;
-import backend.GameMode;
-import backend.Player;
+import backend.core.GameState;
+import backend.game.GameMode;
+import backend.entities.Player;
 
 public class CombatSystem {
 

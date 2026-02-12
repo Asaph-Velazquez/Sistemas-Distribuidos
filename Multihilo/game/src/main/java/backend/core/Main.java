@@ -1,5 +1,11 @@
-package backend;
+package backend.core;
+
 import java.util.concurrent.*;
+import backend.entities.Player;
+import backend.world.World;
+import backend.threads.InputThread;
+import backend.threads.WorldClock;
+import backend.threads.RenderThread;
 
 public class Main {
     public static void main(String[] args){
