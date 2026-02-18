@@ -46,6 +46,38 @@ public class CombatSystem {
         checkCombatEnd();
     }
 
+    // Método para procesar un comando individual
+    public void processCommand(String command) {
+        if (currentEnemy == null || !playerTurn) return;
+        
+        String cmd = command.toLowerCase().trim();
+        Player player = gameState.getPlayer();
+
+        switch (cmd) {
+
+            case "attack", "a" -> {
+                int damage = player.dealDamage();
+                currentEnemy.takeDamage(damage);
+                lastActionMessage = "Atacas a " + currentEnemy.getName() + " por " + damage + " de daño!";
+                
+                if (currentEnemy.isAlive()) {
+                    processEnemyTurn();
+                }
+            }
+
+            case "run", "r" -> {
+                lastActionMessage = "¡Escapaste del combate!";
+                endCombat();
+            }
+
+            default -> {
+                lastActionMessage = "Comando inválido en combate. Usa 'attack' ('a') o 'run' ('r').";
+            }
+        }
+        
+        checkCombatEnd();
+    }
+
     private void processPlayerTurn(BlockingQueue<String> inputQueue) {
 
         if (inputQueue.isEmpty()) return;

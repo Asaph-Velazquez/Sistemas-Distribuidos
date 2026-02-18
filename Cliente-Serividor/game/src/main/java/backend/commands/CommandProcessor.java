@@ -39,6 +39,16 @@ public class CommandProcessor {
 
         String cmd = command.toLowerCase().trim();
         
+        // Verificar el modo de juego actual
+        GameMode.Mode currentMode = gameState.getCurrentGameMode();
+        
+        // Si está en combate, delegar al CombatSystem
+        if (currentMode == GameMode.Mode.Combat) {
+            gameState.getCombatSystem().processCommand(cmd);
+            return;
+        }
+        
+        // Si está en exploración, procesar comandos de movimiento
         switch (cmd) {
 
             case "w" -> movePlayer(0, -1);

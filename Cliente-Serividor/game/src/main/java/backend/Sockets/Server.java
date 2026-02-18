@@ -60,7 +60,7 @@ public class Server {
                             
                             out.println(gameState.toJSON().toJSONString());
                             
-                            Thread.sleep(16);
+                            Thread.sleep(100);
                         }
                         
                         System.out.println("Cliente desconectado");
