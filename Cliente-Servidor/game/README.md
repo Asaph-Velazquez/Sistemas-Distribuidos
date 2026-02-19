@@ -166,8 +166,8 @@ mvn package
 
 ## 🎯 Cómo Jugar
 
-1. Inicia el servidor con `mvn exec:java -Dexec.mainClass="backend.Sockets.Server"`
-2. Conecta el cliente con `mvn exec:java -Dexec.mainClass="backend.Sockets.Client"`
+1. Inicia el servidor con `mvn exec:java "-Dexec.mainClass=backend.Sockets.Server"`
+2. Conecta el cliente con `mvn exec:java "-Dexec.mainClass=backend.Sockets.Client"`
 3. Usa comandos de texto en el cliente para interactuar
 4. Navega por el mundo en modo exploración
 5. Enfrenta enemigos en modo combate
