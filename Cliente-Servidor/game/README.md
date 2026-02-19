@@ -141,7 +141,7 @@ mvn clean compile
 El servidor debe iniciarse primero:
 
 ```bash
-mvn exec:java -Dexec.mainClass="backend.Sockets.Server"
+mvn exec:java "-Dexec.mainClass=backend.Sockets.Server"
 ```
 
 ### Ejecutar el Cliente
@@ -149,7 +149,7 @@ mvn exec:java -Dexec.mainClass="backend.Sockets.Server"
 En otra terminal, ejecuta el cliente:
 
 ```bash
-mvn exec:java -Dexec.mainClass="backend.Sockets.Client"
+mvn exec:java "-Dexec.mainClass=backend.Sockets.Client"
 ```
 
 ### Ejecutar Tests
