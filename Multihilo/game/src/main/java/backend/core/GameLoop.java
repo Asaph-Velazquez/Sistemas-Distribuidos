@@ -32,7 +32,7 @@ public class GameLoop implements Runnable {
             }
 
             try {
-                Thread.sleep(100); // evita 100% CPU
+                Thread.sleep(100); 
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
@@ -47,7 +47,7 @@ public class GameLoop implements Runnable {
     }
 
     private void updateExploration() {
-        // Aquí después irán eventos del mundo
+        // TODO: implementar eventos del mundo
     }
 
     private void updateCombat() {

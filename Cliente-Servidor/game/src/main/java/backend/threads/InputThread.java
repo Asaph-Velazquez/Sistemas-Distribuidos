@@ -16,9 +16,13 @@ public class InputThread implements Runnable {
     public void run(){
         Scanner sc = new Scanner(System.in);
         while(running){
-            String input = sc.nextLine().trim();
-            if(!input.isEmpty()){
-                inputQueue.offer(input);
+            try{
+                String input = sc.nextLine().trim();
+                if(!input.isEmpty()){
+                    inputQueue.offer(input);
+                }
+            } catch(java.util.NoSuchElementException e){
+                break;
             }
         }
     }
