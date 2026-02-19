@@ -51,7 +51,6 @@
           </execution>
         </executions>
         <configuration>
-          <mainClass>backend.Sockets.Client</mainClass>
           <cleanupDaemonThreads>false</cleanupDaemonThreads>
         </configuration>
       </plugin>

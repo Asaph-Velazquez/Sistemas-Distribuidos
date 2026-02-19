@@ -1,5 +1,7 @@
 backend\entities\Entity.class
 backend\core\GameLoop.class
+backend\threads\ReceiverThread.class
+backend\Sockets\Client.class
 backend\combat\CombatSystem.class
 backend\combat\Enemy.class
 backend\core\GameState.class
