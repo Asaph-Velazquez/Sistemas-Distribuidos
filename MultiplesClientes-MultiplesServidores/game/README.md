@@ -34,12 +34,27 @@ Proyecto de juego en consola desarrollado en Java que implementa una **arquitect
 ## 🏗️ Arquitectura del Sistema
 
 ```
-                    [Cliente] ──────────────────────────┐
-                                                         │
-                    [Cliente] ──► MatchmakingServer     │──► ServidorJuego1 (Puerto 50001)
-                            Puerto 12345              │──► ServidorJuego2 (Puerto 50002)
-                    [Cliente] ─────────────────────────┤──► ServidorJuego3 (Puerto 50003)
-                                                         │
+        ┌──────────────────────────────────────────────────────┐
+        │              MatchmakingServer (Puerto 12345)      │
+        │  ┌─────────────────────────────────────────────────┐ │
+        │  │  • Registro de partidas                         │ │
+        │  │  • Listado de juegos disponibles                │ │
+        │  │  • Asignación de puertos (50001-50100)         │ │
+        │  │  • Inicio automático de servidores de juego    │ │
+        │  └─────────────────────────────────────────────────┘ │
+        └──────────────────────────┬───────────────────────────┘
+                                   │
+         ┌─────────────────────────┼─────────────────────────┐
+         │                         │                         │
+         ▼                         ▼                         ▼
+  ┌─────────────┐          ┌─────────────┐          ┌─────────────┐
+  │ServidorJuego│          │ServidorJuego│          │ServidorJuego│
+  │ (Puerto 50001)         │ (Puerto 50002)         │ (Puerto 50003)
+  └──────┬──────┘          └──────┬──────┘          └──────┬──────┘
+         │                         │                         │
+    ┌────┴────┐               ┌────┴────┐               ┌────┴────┐
+    │Cliente 1│               │Cliente 3│               │Cliente 5│
+    └─────────┘               └─────────┘               └─────────┘
 ```
 
 ### Componentes del Sistema
