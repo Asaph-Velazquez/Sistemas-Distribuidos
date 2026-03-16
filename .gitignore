@@ -1,3 +1,65 @@
-.vscode
-target/
+# ============================================================
+#  GitIgnore - Proyecto Java/Maven
+# ============================================================
+# -----------------
+#  Documentacion
+# -----------------
 reporte.md
+.pdf
+
+# -----------------
+# Maven
+# -----------------
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# -----------------
+# IDEs
+# -----------------
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.settings/
+.project
+.classpath
+*.swp
+*.swo
+*~
+
+# -----------------
+# OS
+# -----------------
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# -----------------
+# Logs
+# -----------------
+*.log
+
+# -----------------
+# Runtime
+# -----------------
+*.class
+
+# -----------------
+# Dependencias Locales (copiadas para compilación)
+# -----------------
+json-simple-1.1.1.jar
+lanterna-3.1.1.jar
+
+# -----------------
+# Scripts de Ejecución
+# -----------------
+run.ps1

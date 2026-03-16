@@ -30,9 +30,9 @@ Juego en consola Java con arquitectura cliente-servidor utilizando **sockets TCP
 - Multihilo
 
 ```
-┌─────────────┐         ┌─────────────┐
-│   Cliente   │◄───────►│  Servidor   │
-│  (Client)   │  Socket │  (Server)   │
+┌─────────────┐          ┌─────────────┐
+│   Cliente   │◄───────► │  Servidor   │
+│  (Client)   │  Socket  │  (Server)   │
 └─────────────┘   TCP    └─────────────┘
        │                      │
        │  - Comandos JSON     │  - GameState
@@ -104,26 +104,84 @@ Sistema avanzado con **servidor de matchmaking** y **múltiples servidores de ju
 
 ```
         ┌──────────────────────────────────────────────────────┐
-        │              MatchmakingServer (Puerto 12345)      │
+        │              MatchmakingServer (Puerto 12345)        │
         │  ┌─────────────────────────────────────────────────┐ │
         │  │  • Registro de partidas                         │ │
         │  │  • Listado de juegos disponibles                │ │
-        │  │  • Asignación de puertos (50001-50100)         │ │
-        │  │  • Inicio automático de servidores de juego    │ │
+        │  │  • Asignación de puertos (50001-50100)          │ │
+        │  │  • Inicio automático de servidores de juego     │ │
         │  └─────────────────────────────────────────────────┘ │
         └──────────────────────────┬───────────────────────────┘
                                    │
-         ┌─────────────────────────┼─────────────────────────┐
-         │                         │                         │
-         ▼                         ▼                         ▼
-  ┌─────────────┐          ┌─────────────┐          ┌─────────────┐
-  │ServidorJuego│          │ServidorJuego│          │ServidorJuego│
-  │ (Puerto 50001)         │ (Puerto 50002)         │ (Puerto 50003)
-  └──────┬──────┘          └──────┬──────┘          └──────┬──────┘
-         │                         │                         │
-    ┌────┴────┐               ┌────┴────┐               ┌────┴────┐
-    │Cliente 1│               │Cliente 3│               │Cliente 5│
-    └─────────┘               └─────────┘               └─────────┘
+           ┌───────────────────────┼───────────────────────┐
+           │                       │                       │
+           ▼                       ▼                       ▼
+    ┌─────────────┐          ┌─────────────┐          ┌─────────────┐
+    │ServidorJuego│          │ServidorJuego│          │ServidorJuego│
+    │(Puerto 50001)          │(Puerto 50002)          │(Puerto 50003)
+    └──────┬──────┘          └──────┬──────┘          └──────┬──────┘
+           │                        │                        │
+      ┌────┴────┐              ┌────┴────┐              ┌────┴────┐
+      │Cliente 1│              │Cliente 3│              │Cliente 5│
+      └─────────┘              └─────────┘              └─────────┘
+```
+
+### 5. ObjetosDistribuidos
+Juego en consola Java con **Objetos Distribuidos** utilizando **RMI (Remote Method Invocation)** y sockets TCP.
+
+**Características:**
+- **RMI Broker**: Puerto 1099 para invocación de métodos remotos
+- **RemoteMatchmaking**: Objeto remoto para gestión de partidas
+- **Sistema de Matchmaking**: Servidor central (puerto 12345)
+- **Múltiples Servidores de Juego**: Puertos dinámicos (50001-50100)
+- **Sistema de Combate**: Combate individual por jugador
+- **Sincronización**: ConcurrentHashMap, AtomicInteger, volatile, synchronized
+
+**Dos Modelos de Comunicación:**
+| Modelo | Descripción | Puerto |
+|--------|-------------|--------|
+| **Sockets TCP** | Comunicación texto/JSON | 12345 (matchmaking), 50001-50100 (juego) |
+| **RMI** | Objetos distribuidos con invocación de métodos remotos | 1099 (broker) |
+
+**Tecnologías:**
+- Java 17
+- Maven
+- Java RMI (java.rmi)
+- Sockets TCP (java.net)
+- JSON (org.json.simple)
+- Lanterna (interfaz gráfica)
+
+```
+        ┌──────────────────────────────────────────────────────┐
+        │              MatchmakingServer (Puerto 12345)        │
+        │  ┌─────────────────────────────────────────────────┐ │
+        │  │  • Registro de partidas                         │ │
+        │  │  • Listado de juegos disponibles                │ │
+        │  │  • Asignación de puertos (50001-50100)          │ │
+        │  │  • Inicio automático de servidores de juego     │ │
+        │  └─────────────────────────────────────────────────┘ │
+        └──────────────────────────┬───────────────────────────┘
+                                    │
+        ┌──────────────────────────┼───────────────────────────┐
+        │         RMI Broker (Puerto 1099)                     │
+        │  ┌─────────────────────────────────────────────────┐ │
+        │  │  • Registry RMI                                 │ │
+        │  │  • RemoteMatchmaking (objeto remoto)            │ │
+        │  │  • Invocación de métodos remotos                │ │
+        │  └─────────────────────────────────────────────────┘ │
+        └──────────────────────────┬───────────────────────────┘
+                                    │
+        ┌──────────────────────────┼───────────────────────────┐
+        │                          │                           │
+        ▼                          ▼                           ▼
+   ┌─────────────┐           ┌─────────────┐            ┌─────────────┐
+   │ServidorJuego│           │ServidorJuego│            │ServidorJuego│
+   │(Puerto 50001)           │(Puerto 50002)            │(Puerto 50003)
+   └──────┬──────┘           └──────┬──────┘            └──────┬──────┘
+          │                         │                          │
+     ┌────┴────┐               ┌────┴────┐                ┌────┴────┐
+     │Cliente 1│               │Cliente 3│                │Cliente 5│
+     └─────────┘               └─────────┘                └─────────┘
 ```
 
 ## ✍️ Autor
