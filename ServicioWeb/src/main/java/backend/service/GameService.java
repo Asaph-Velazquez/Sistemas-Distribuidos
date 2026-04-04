@@ -5,20 +5,20 @@ import backend.entities.Player;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * GameService - Manages the state of a single game instance
+ * GameService - Gestiona el estado de una sola instancia de juego
  * 
- * NOT a Spring @Service - one instance created per game
- * Replaces the socket-based Server.java with in-memory state management
+ * NO es un @Service de Spring - se crea una instancia por cada juego
+ * Reemplaza el Server.java basado en sockets con gestión de estado en memoria
  * 
- * Each GameService instance manages:
- *   - One GameState (world, players, time)
- *   - Player ID generation (AtomicInteger for thread-safety)
- *   - Player lifecycle (add/remove)
+ * Cada instancia de GameService gestiona:
+ *   - Un GameState (mundo, jugadores, tiempo)
+ *   - Generación de IDs de jugador (AtomicInteger para seguridad en hilos)
+ *   - Ciclo de vida de los jugadores (agregar/eliminar)
  * 
- * Thread-safety:
- *   - synchronized methods: Protect player addition/removal
- *   - AtomicInteger: Thread-safe ID generation
- *   - GameState: Uses ConcurrentHashMap internally for players
+ * Seguridad en hilos (Thread-safety):
+ *   - Métodos synchronized: Protegen la adición/eliminación de jugadores
+ *   - AtomicInteger: Generación de IDs segura para múltiples hilos
+ *   - GameState: Usa ConcurrentHashMap internamente para los jugadores
  */
 public class GameService {
     private final GameState gameState;
@@ -26,25 +26,25 @@ public class GameService {
     
     /**
      * Constructor
-     * @param gameState The GameState instance for this game
+     * @param gameState
      */
     public GameService(GameState gameState) {
         this.gameState = gameState;
     }
-    
+
     /**
-     * Add a player to the game
-     * Thread-safe: Uses GameState's synchronized addPlayer
+     * Agrega un jugador al juego
+     * Seguro para hilos: Usa el método addPlayer sincronizado de GameState
      * 
-     * Equivalent to: Server accepting a new client connection
-     * - Generates unique player ID (AtomicInteger)
-     * - Gets random walkable position from world
-     * - Creates Player entity
-     * - Adds to GameState
+     * Equivalente a: Server aceptando una nueva conexión de cliente
+     * - Genera un ID único para el jugador (AtomicInteger)
+     * - Obtiene una posición aleatoria transitable del mundo
+     * - Crea la entidad Player
+     * - La agrega al GameState
      * 
-     * @param playerName Name of the player
-     * @return The created Player instance
-     */
+     * @param playerName Nombre del jugador
+     * @return La instancia de Player creada
+    */
     public synchronized Player addPlayer(String playerName) {
         int playerId = nextPlayerId.getAndIncrement();
         
@@ -57,29 +57,29 @@ public class GameService {
     }
     
     /**
-     * Remove a player from the game
-     * Thread-safe: Uses GameState's synchronized removePlayer
+     * Elimina un jugador del juego
+     * Seguro para hilos: Usa el método removePlayer sincronizado de GameState
      * 
-     * Equivalent to: Server handling client disconnection
+     * Equivalente a: Server manejando la desconexión de un cliente
      * 
-     * @param playerId ID of the player to remove
+     * @param playerId ID del jugador a eliminar
      */
     public synchronized void removePlayer(int playerId) {
         gameState.removePlayer(playerId);
     }
     
     /**
-     * Get the game state
-     * @return The GameState instance
+     * Obtiene el estado del juego
+     * @return La instancia de GameState
      */
     public GameState getGameState() {
         return gameState;
     }
     
     /**
-     * Get current player count
-     * Thread-safe: Uses GameState's synchronized method
-     * @return Number of players currently in the game
+     * Obtiene el número actual de jugadores
+     * Seguro para hilos: Usa el método sincronizado de GameState
+     * @return Número de jugadores actualmente en el juego
      */
     public int getCurrentPlayerCount() {
         return gameState.getCurrentPlayerCount();

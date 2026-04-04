@@ -154,35 +154,4 @@ public class World {
         } while (!isWalkable(x, y) && attempts < 100);
         return new int[]{x, y};
     }
-
-    /**
-     * Renderiza el mundo en consola
-     * Muestra el mapa, jugadores (por ID) y enemigos (E)
-     * @param players Mapa de jugadores activos
-     */
-    public void render(Map<Integer, Player> players) {
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                Player playerAtPos = null;
-                int playerIdAtPos = -1;
-                
-                for (Map.Entry<Integer, Player> entry : players.entrySet()) {
-                    if (entry.getValue().getX() == x && entry.getValue().getY() == y) {
-                        playerAtPos = entry.getValue();
-                        playerIdAtPos = entry.getKey();
-                        break;
-                    }
-                }
-                
-                if (playerAtPos != null) {
-                    System.out.print(playerIdAtPos);
-                } else if (hasEnemyAt(x, y)) {
-                    System.out.print("E");
-                } else {
-                    System.out.print(map[y][x]);
-                }
-            }
-            System.out.println();
-        }
-    }
 }

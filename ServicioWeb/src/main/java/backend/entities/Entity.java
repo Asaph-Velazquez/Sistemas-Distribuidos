@@ -36,17 +36,6 @@ public abstract class Entity {
     }
     
     /**
-     * Mueve la entidad por un desplazamiento relativo
-     * Synchronized: Evita condiciones de carrera al actualizar posición
-     * @param dx Desplazamiento en X
-     * @param dy Desplazamiento en Y
-     */
-    public synchronized void move(int dx, int dy) {
-        this.x += dx;
-        this.y += dy;
-    }
-
-    /**
      * Obtiene la posición X actual
      * Synchronized: Garantiza lectura consistente de la posición
      * @return Coordenada X
@@ -73,18 +62,6 @@ public abstract class Entity {
         health -= damage;
         if (health < 0) {
             health = 0;
-        }
-    }
-
-    /**
-     * Aumenta la salud de la entidad
-     * Synchronized: Evita condiciones de carrera al modificar salud
-     * @param amount Cantidad de salud a restaurar
-     */
-    public synchronized void heal(int amount) {
-        health += amount;
-        if (health > maxHealth) {
-            health = maxHealth;
         }
     }
 
@@ -120,5 +97,13 @@ public abstract class Entity {
      */
     public String getName() {
         return name;
+    }
+
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public void setY(int y) {
+        this.y = y;
     }
 }

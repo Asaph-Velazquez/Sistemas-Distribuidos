@@ -111,14 +111,6 @@ public class GameState {
         return world;
     }
 
-    public synchronized void incrementWorldTime() {
-        worldTime++;
-    }
-
-    public int getWorldTime() {
-        return worldTime;
-    }
-
     /**
      * Agrega un jugador al estado del juego
      * Synchronized: Garantiza consistencia al modificar el mapa de jugadores
@@ -148,15 +140,6 @@ public class GameState {
      */
     public synchronized Player getPlayer(int id) {
         return players.get(id);
-    }
-
-    /**
-     * Obtiene cualquier jugador (usado para validaciones)
-     * Synchronized: Garantiza lectura consistente
-     * @return Un jugador cualquiera o null si no hay jugadores
-     */
-    public synchronized Player getAnyPlayer() {
-        return players.isEmpty() ? null : players.values().iterator().next();
     }
 
     /**

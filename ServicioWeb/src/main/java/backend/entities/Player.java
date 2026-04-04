@@ -13,7 +13,6 @@ public class Player extends Entity {
 
     private int attack;
     private int defense;
-    private List<String> inventory;
 
     /**
      * Constructor de Player
@@ -26,7 +25,6 @@ public class Player extends Entity {
         super(name, x, y, 100);
         this.attack = 15;
         this.defense = 5;
-        this.inventory = new ArrayList<>();
     }
 
     /**
@@ -44,13 +42,5 @@ public class Player extends Entity {
      */
     public int getDefense() {
         return defense;
-    }
-
-    /**
-     * Obtiene el inventario del jugador
-     * @return Lista de items en el inventario
-     */
-    public List<String> getInventory() {
-        return inventory;
     }
 }

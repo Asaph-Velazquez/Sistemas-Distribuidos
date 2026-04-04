@@ -184,6 +184,76 @@ Juego en consola Java con **Objetos Distribuidos** utilizando **RMI (Remote Meth
      └─────────┘               └─────────┘                └─────────┘
 ```
 
-## ✍️ Autor
+### 6. ServicioWeb
+Aplicación web del juego distribuido con **arquitectura híbrida REST + WebSocket** utilizando **Spring Boot**.
 
-Velazquez Parral Saul Asaph
+**Características:**
+- **API REST**: Operaciones de lobby y matchmaking (crear, listar, unirse, eliminar partidas)
+- **WebSocket (WS)**: Comunicación en tiempo real del estado del juego (movimiento, combate, broadcast)
+- **Frontend React**: Interfaz web con Vite + Tailwind CSS
+- **Arquitectura Híbrida**: REST para gestión + WS para tiempo real
+
+**Endpoints REST:**
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| `GET` | `/api/games/health` | Verificación de estado |
+| `POST` | `/api/games/create` | Crear partida |
+| `GET` | `/api/games` | Listar partidas |
+| `POST` | `/api/games/{port}/join` | Unirse a partida |
+| `DELETE` | `/api/games/{port}` | Eliminar partida |
+
+**WebSocket:**
+- Endpoint: `ws://localhost:8080/ws/game`
+- Mensajes entrantes: `join`, `move`, `attack`, `getState`
+- Mensajes salientes: `joined`, `gameState`, `combatResult`, `error`
+
+**Tecnologías:**
+- Java 17
+- Spring Boot 4
+- Spring Web (REST)
+- Spring WebSocket
+- Maven
+- React + Vite + Tailwind (frontend)
+
+**Dos Modelos de Comunicación:**
+| Modelo | Descripción | Puerto |
+|--------|-------------|--------|
+| **API REST** | Gestión de partidas (request/response) | 8080 (HTTP) |
+| **WebSocket** | Tiempo real (canal persistente bidireccional) | 8080 (WS /ws/game) |
+
+**Sincronización:**
+- `ConcurrentHashMap`: Almacenamiento thread-safe de partidas activas y sesiones WS
+- `AtomicInteger`: Generación atómica de puertos únicos
+- `synchronized`: Métodos críticos de gestión de jugadores
+- `volatile`: Visibilidad de flags entre hilos
+
+```
+        ┌─────────────────────────────────────┐
+        │      Frontend React (:5173)         │
+        │  • Lobby (REST)  • Juego (WS)       │
+        └──────────┬──────────────┬───────────┘
+                   │              │
+          HTTP REST│              │WebSocket
+                   │              │
+        ┌──────────▼──────────────▼────────────┐
+        │       Spring Boot (:8080)            │
+        │  ┌────────────────┐ ┌──────────────┐ │
+        │  │  GameController│ │GameWSHandler │ │
+        │  │  (REST API)    │ │  (WS)        │ │
+        │  └───────┬────────┘ └──────┬───────┘ │
+        │          │                 │         │
+        │          ▼                 ▼         │
+        │  ┌────────────────────────────────┐  │
+        │  │     MatchmakingService         │  │
+        │  │  • ConcurrentHashMap<Integer,  │  │
+        │  │    GameService>                │  │
+        │  │  • AtomicInteger (puertos)     │  │
+        │  └───────────────┬────────────────┘  │
+        │                  │                   │
+        │                  ▼                   │
+        │  ┌────────────────────────────────┐  │
+        │  │     GameState (por partida)    │  │
+        │  │  • World  • Players  • Enemies │  │
+        │  └────────────────────────────────┘  │
+        └──────────────────────────────────────┘
+```

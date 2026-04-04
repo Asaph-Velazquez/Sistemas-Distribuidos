@@ -66,16 +66,15 @@ public class MatchmakingService {
         // Equivalente a: activeGames.put(port, gameInfo) en MatchmakingServer
         activeGames.put(port, gameService);
         
-        // Add the host as the first player
-        // Equivalente a: Server acepta primer cliente y asigna ID
-        gameService.addPlayer(request.getUsername());
+        // Nota: Los jugadores se añaden via WebSocket, no aquí
+        // Esto permite que el mismo cliente cree y se una sin duplicar
         
         return new GameResponseDTO(
             port,
             request.getGameName(),
             request.getUsername(),
             request.getMaxPlayers(),
-            1  // currentPlayers = 1 (the host)
+            0  // currentPlayers = 0 hasta que alguien se una via WebSocket
         );
     }
     
