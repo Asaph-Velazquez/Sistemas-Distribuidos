@@ -3,7 +3,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: servicio-web-backend
+    container_name: ros-backend
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
     ports:
       - "8080:8080"
     healthcheck:
@@ -18,10 +20,10 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: servicio-web-frontend
+    container_name: ros-frontend
     depends_on:
       backend:
         condition: service_healthy
     ports:
-      - "80:80"
+      - "5173:80"
     restart: unless-stopped

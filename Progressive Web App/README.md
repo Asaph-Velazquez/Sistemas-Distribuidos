@@ -1,197 +1,268 @@
-# ServicioWeb - Juego Distribuido con API REST + WebSocket
+# Realm Of Shadows - PWA
 
-## 📋 Descripción
+## Descripción
 
-Este módulo implementa una versión web del juego distribuido usando una arquitectura **híbrida**:
+**Realm Of Shadows** es un juego roguelike dungeon multijugador implementado como **Progressive Web App (PWA)** con soporte completo para modo offline.
 
-- **API REST** para operaciones de lobby y matchmaking (crear, listar, unirse, eliminar partidas).
-- **WebSocket (WS)** para comunicación en tiempo real del estado del juego (movimiento, combate, broadcast del tablero).
+### Modos de Juego
 
-El objetivo es separar claramente:
+- **Online**: Multijugador en tiempo real via WebSocket + REST API
+- **Offline**: Partida local contra IA, funciona sin conexión a internet
 
-- Control de sesión de partidas por HTTP (request/response)
-- Simulación en tiempo real por canal persistente WS
+### Características PWA
 
-## 🛠️ Tecnologías
+- **Instalable**: Se puede instalar en dispositivos como una app nativa
+- **Offline**: Juego local completo sin conexión + sincronización al reconnectar
+- **Responsive**: Funciona en desktop, tablet y móvil
+- **Auto-actualizable**: Service Worker con actualización automática
+- **Detección automática**: Cambia entre modo online/offline según conectividad
 
-- Java 17+
-- Spring Boot 4
-- Spring Web (REST)
+## Tecnologías
+
+### Backend
+- Java 17+ / Spring Boot 4
+- Spring Web (REST API)
 - Spring WebSocket
 - Maven
-- Frontend React + Vite + Tailwind (en `frontend/`)
 
-## 🏗️ Arquitectura General
+### Frontend
+- React 19 + Vite 8
+- Tailwind CSS 4
+- **vite-plugin-pwa** (Service Worker + Manifest)
+- **Dexie** (IndexedDB para modo offline)
+- **Game Engine Local** (Reimplementación en JS de la lógica del servidor)
 
-```mermaid
-flowchart LR
-  FE[Frontend React]
+## Arquitectura PWA
 
-  GC[GameController\nREST: create/list/join/delete]
-  WSH[GameWebSocketHandler\nWS: join/move/attack/getState]
+### Modo Online (Con servidor)
 
-  MM[MatchmakingService]
-  GS[GameService]
-  GSTATE[GameState]
-  WORLD[World]
-
-  FE -- HTTP REST --> GC
-  FE -- WebSocket /ws/game --> WSH
-
-  GC --> MM
-  WSH --> MM
-  MM --> GS
-  GS --> GSTATE
-  GSTATE --> WORLD
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     NAVEGADOR (CLIENTE)                     │
+├─────────────────────────────────────────────────────────────┤
+│  ┌───────────────────────────────────────────────────────┐  │
+│  │                    FRONTEND PWA                       │  │
+│  │  ┌─────────────┐    ┌─────────────┐    ┌───────────┐  │  │
+│  │  │   App UI    │    │  Service    │    │ IndexedDB │  │  │
+│  │  │  (React)    │◄──►│   Worker    │◄──►│  (Dexie)  │  │  │
+│  │  └─────────────┘    └──────┬──────┘    └───────────┘  │  │
+│  │                            │                          │  │
+│  │                      ┌─────┴─────┐                    │  │
+│  │                      │  WS Client│                    │  │
+│  │                      │  REST API │                    │  │
+│  │                      └───────────┘                    │  │
+│  └────────────────────────────┬──────────────────────────┘  │
+└───────────────────────────────┼─────────────────────────────┘
+                                │
+         ┌──────────────────────┼──────────────────────┐
+         │                      │                      │
+   ┌─────▼─────┐          ┌─────▼─────┐          ┌─────▼─────┐
+   │ REST API  │          │ WebSocket │          │  Match    │
+   │  :8080    │          │ /ws/game  │          │  maker    │
+   └─────┬─────┘          └─────┬─────┘          └───────────┘
+         │                      │
+         └──────────┬───────────┘
+                    │
+          ┌─────────▼─────────┐
+          │   BACKEND (Java)  │
+          │   Spring Boot     │
+          │ - GameController  │
+          │ - GameWebSocket   │
+          │ - GameService     │
+          │ - GameState       │
+          └───────────────────┘
 ```
 
-## 📡 API REST
+### Modo Offline (Sin servidor)
 
-La API REST se usa para operaciones de matchmaking y ciclo de vida de partidas:
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     NAVEGADOR (CLIENTE)                     │
+├─────────────────────────────────────────────────────────────┤
+│  ┌───────────────────────────────────────────────────────┐  │
+│  │                 FRONTEND PWA (OFFLINE)                │  │
+│  │  ┌─────────────┐    ┌─────────────┐    ┌───────────┐  │  │
+│  │  │   App UI    │    │  Service    │    │ IndexedDB │  │  │
+│  │  │  (React)    │◄──►│   Worker    │◄──►│  (Dexie)  │  │  │
+│  │  └─────────────┘    └──────┬──────┘    └───────────┘  │  │
+│  │                            │                          │  │
+│  │  ┌─────────────────────────┴────────────────────────┐ │  │
+│  │  │           GAME ENGINE (JavaScript)               │ │  │
+│  │  │  ┌──────────┐  ┌──────────┐  ┌──────────────┐    │ │  │
+│  │  │  │  World   │  │  Enemy   │  │ GameEngine   │    │ │  │
+│  │  │  │ (Map/AI) │  │ (Combat) │  │ (Movement)   │    │ │  │
+│  │  │  └──────────┘  └──────────┘  └──────────────┘    │ │  │
+│  │  └──────────────────────────────────────────────────┘ │  │
+│  └───────────────────────────────────────────────────────┘  │
+│                                                             │
+│            SIN CONEXIÓN - Solo datos locales                │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Flujo de Datos
+
+| Modo | Componente | Destino |
+|------|------------|---------|
+| **Online** | REST API calls | `http://localhost:8080/api/*` |
+| **Online** | WebSocket | `ws://localhost:8080/ws/game` |
+| **Offline** | Game Engine (JS) | IndexedDB local |
+| **Sync** | Sync Manager | Cola de acciones → servidor al reconnect |
+
+## Servicio Worker y Caching
+
+### Manifest.json (Generado automáticamente)
+
+```javascript
+{
+  name: 'Realm Of Shadows',
+  short_name: 'RealmShadows',
+  description: 'Juego dungeon roguelike - Modo offline disponible',
+  theme_color: '#0f0f0f',
+  background_color: '#0f0f0f',
+  display: 'standalone',
+  orientation: 'portrait',
+  start_url: '/',
+  icons: [{ src: 'favicon.svg', sizes: 'any', type: 'image/svg+xml' }]
+}
+```
+
+### Estrategias de Caching
+
+| Recurso | Estrategia | Descripción |
+|---------|------------|-------------|
+| Assets estáticos (JS, CSS, HTML) | **Precache** | Cacheados en instalación |
+| API REST | **NetworkFirst** | Intenta red, cae a cache |
+| Imágenes/SVGs | **CacheFirst** | Sirve desde cache primero |
+| WebSocket | **No caching** | Tiempo real, no cacheable |
+
+### Runtime Caching para API
+
+```javascript
+{
+  urlPattern: /^https:\/\/localhost:8080\/api\/.*/i,
+  handler: 'NetworkFirst',
+  options: {
+    cacheName: 'api-cache',
+    expiration: { maxEntries: 50, maxAgeSeconds: 86400 }
+  }
+}
+```
+
+## API REST
 
 | Método | Endpoint | Descripción |
 |--------|----------|-------------|
-| `GET` | `/api/games/health` | Verificación de estado |
+| `GET` | `/api/games/health` | Health check |
 | `POST` | `/api/games/create` | Crear partida |
 | `GET` | `/api/games` | Listar partidas |
 | `POST` | `/api/games/{port}/join` | Unirse a partida |
 | `DELETE` | `/api/games/{port}` | Eliminar partida |
 
-### 📂 Implementación en código
+## WebSocket
 
-- Controlador REST: `src/main/java/backend/controller/GameController.java`
-- Lógica de matchmaking: `src/main/java/backend/service/MatchmakingService.java`
-- DTOs REST: `src/main/java/backend/dto/`
+### Endpoint: `ws://localhost:8080/ws/game`
 
-### 🌐 Uso desde frontend
-
-- Llamadas `fetch(...)` para crear/listar/unirse:
-  - `frontend/src/App.jsx`
-
-## 🔌 WebSocket (WS)
-
-El canal WS se usa para comandos en tiempo real y sincronización de estado.
-
-### Endpoint WS
-
-- `ws://localhost:8080/ws/game`
-
-### Registro del endpoint
-
-- Configuración WS: `src/main/java/backend/config/WebSocketConfig.java`
-
-### Handler principal
-
-- `src/main/java/backend/config/GameWebSocketHandler.java`
-
-### Mensajes entrantes (cliente → servidor)
+### Mensajes (Cliente → Servidor)
 
 | Comando | Descripción |
 |---------|-------------|
-| `join` | Vincula sesión WS con partida/jugador |
-| `move` | Movimiento con WASD |
-| `attack` | Ataque a enemigo adyacente (o objetivo seleccionado) |
-| `getState` | Solicita snapshot actual |
+| `join` | Unirse a partida |
+| `move` | Movimiento WASD |
+| `attack` | Atacar enemigo |
+| `getState` | Solicitar estado |
 
-### Mensajes salientes (servidor → cliente)
+### Mensajes (Servidor → Cliente)
 
 | Comando | Descripción |
 |---------|-------------|
 | `joined` | Confirmación de unión |
-| `gameState` | Estado completo (mapa, jugadores, enemigos) |
-| `combatResult` | Resultado de intercambio de combate |
-| `error` | Errores de validación/comando |
+| `gameState` | Estado del juego |
+| `combatResult` | Resultado de combate |
+| `error` | Error |
 
-### 🌐 Uso desde frontend
+## Estructura del Proyecto
 
-- Conexión WS y manejo de eventos:
-  - `frontend/src/App.jsx`
-
-## 🔄 Flujo Funcional REST + WS
-
-1. El usuario crea o selecciona partida por REST.
-2. El frontend abre WS y envía `join` con `port` + `playerName`.
-3. El servidor responde `joined` y hace `broadcast` de `gameState`.
-4. Las acciones de juego (`move`, `attack`) viajan por WS.
-5. Cada acción actualiza `GameState` y se reenvía a todos los clientes de la misma partida.
-
-## 📦 Estructura del Proyecto
-
-```text
-ServicioWeb/
-├── src/main/java/backend/
-│   ├── controller/
-│   │   └── GameController.java          # API REST
-│   ├── config/
-│   │   ├── WebSocketConfig.java         # Registro endpoint WS
-│   │   └── GameWebSocketHandler.java    # Mensajería en tiempo real
-│   ├── service/
-│   │   ├── MatchmakingService.java      # Matchmaking (REST)
-│   │   └── GameService.java             # Estado por partida
-│   ├── core/
-│   │   └── GameState.java
-│   ├── world/
-│   │   └── World.java
-│   ├── entities/
-│   │   └── Player.java
-│   └── combat/
-│       └── Enemy.java
-├── src/main/resources/
-│   ├── application.properties
-│   └── static/                          # cliente HTML básico (legacy)
-└── frontend/                            # cliente React actual
-    └── src/App.jsx
+```
+Progressive Web App/
+├── src/main/java/backend/         # Spring Boot (Backend Java)
+│   ├── controller/                # REST API + WebSocket
+│   ├── config/                    # WebSocket config
+│   ├── service/                   # Game logic
+│   ├── core/                      # Game state
+│   └── combat/                    # Enemy logic
+├── frontend/                      # React PWA
+│   ├── src/
+│   │   ├── lib/
+│   │   │   ├── db.ts              # IndexedDB (Dexie)
+│   │   │   ├── sync-manager.ts    # Sync online/offline
+│   │   │   └── engine/
+│   │   │       ├── world.ts       # World logic (JS)
+│   │   │       └── game-engine.ts  # Game engine (JS)
+│   │   └── App.jsx                # Main UI
+│   ├── vite.config.js             # PWA + vite-plugin-pwa
+│   ├── nginx.conf                  # Nginx config (Docker)
+│   └── public/                    # Static assets
+├── compose.yaml                   # Docker compose
+└── Dockerfile                     # Backend Docker
 ```
 
-## 🚀 Instalación y Ejecución
+## Instalación y Ejecución
 
-### Requisitos Previos
-
-- Java 17 o superior
-- Maven 3.6 o superior
-- Node.js 18+ (para el frontend)
+### Requisitos
+- Java 17+
+- Maven 3.6+
+- Node.js 18+
 - npm
 
-### Paso 1: Backend (Spring Boot)
-
-Desde `ServicioWeb/`:
+### Backend
 
 ```bash
 mvn spring-boot:run
 ```
 
-Backend local: `http://localhost:8080`
-
-### Paso 2: Frontend React
-
-Desde `ServicioWeb/frontend/`:
+### Frontend
 
 ```bash
+cd frontend
 npm install
 npm run dev
 ```
 
-Frontend local: `http://localhost:5173`
+### Docker (Opcional)
 
-## ✅ Verificación Rápida
+```bash
+docker compose up
+```
 
-| Prueba | Endpoint |
-|--------|----------|
-| Health REST | `GET http://localhost:8080/api/games/health` |
+## Verificación
+
+| Prueba | URL |
+|--------|-----|
+| Frontend (PWA) | `http://localhost:5173` |
+| API REST | `http://localhost:8080/api/games/health` |
 | WebSocket | `ws://localhost:8080/ws/game` |
 
-Si la app web carga partidas por REST y actualiza tablero/combate en tiempo real, la integración REST + WS está correcta.
+## Modo Offline
 
-## 💡 Notas de Diseño
+La app detecta automáticamente pérdida de conexión y permite seguir jugando:
 
-- **REST** se usa para operaciones idempotentes o de administración de partida.
-- **WS** se usa para eventos de alta frecuencia y baja latencia.
-- Esta separación reduce polling HTTP y mantiene una interfaz web reactiva en tiempo real.
+### Funcionalidades Offline
+- **Partida Local**: Juego completo contra IA (mismos algoritmos que el servidor)
+- **IndexedDB**: Almacena estado del juego, acciones pendientes, perfil del jugador
+- **Sincronización**: Al reconectar, sincroniza acciones pendientes con el servidor
 
-## ✍️ Autor
+### Flujo Offline → Online
+1. Sin conexión → La app automáticamente entra en "Modo Offline"
+2. El jugador puede crear partida local y jugar contra bots
+3. Al recuperar conexión → La app detecta y permite volver al modo online
+4. Acciones offline se guardan para sincronizar (implementación futura)
 
-Velazquez Parral Saul Asaph
+### Detección de Conexión
+- `navigator.onLine` + eventos `online`/`offline`
+- Verificación activa contra `/api/games/health`
+- Indicador visual en la UI (● En línea / ○ Offline)
 
-## 📚 Repositorio
+## Repositorio
 
 https://github.com/Asaph-Velazquez/Sistemas-Distribuidos.git
