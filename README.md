@@ -257,3 +257,69 @@ Aplicación web del juego distribuido con **arquitectura híbrida REST + WebSock
         │  └────────────────────────────────┘  │
         └──────────────────────────────────────┘
 ```
+
+### 7. Microservicios
+Evolución del proyecto web hacia una arquitectura de **microservicios** con servicios independientes, API Gateway y despliegue con Docker Compose.
+
+**Servicios:**
+- **Auth Service** (`8081`): registro, login y validación JWT
+- **Profile Service** (`8082`): perfil de usuario y resumen de estadísticas
+- **Matchmaking Service** (`8083`): creación, listado y unión a partidas
+- **Game Engine Service** (`8084`): lógica de juego y WebSocket
+- **Stats Service** (`8085`): estadísticas de usuario y leaderboard
+- **nginx Gateway** (`8000`): punto único de entrada hacia los servicios
+
+**Tecnologías:**
+- Java 17
+- Spring Boot 4
+- Spring Web / WebSocket
+- Spring Data JPA
+- H2 en memoria para desarrollo
+- Docker Compose
+- nginx como API Gateway
+- React + Vite + PWA en frontend
+
+**Rutas principales por Gateway:**
+| Servicio | Ruta |
+|----------|------|
+| Auth | `/auth/*` |
+| Profile | `/profile/*` |
+| Matchmaking | `/games/*` |
+| Game Engine | `/game/*` |
+| Stats | `/stats/*` |
+
+**Estado de revisión:**
+- La separación por dominio está bien definida.
+- Los servicios tienen estructura independiente y endpoints de health.
+- El gateway centraliza el acceso externo.
+- La integración completa requiere alinear contratos entre frontend, nginx y backend, especialmente en rutas REST y WebSocket.
+- El reporte técnico completo, hallazgos y mejoras recomendadas están en [`Microservicios/README.md`](Microservicios/README.md).
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Cliente / Frontend                       │
+│            React + Vite + PWA - Navegador Web               │
+└──────────────────────────────┬──────────────────────────────┘
+                               │
+                               │ HTTP / WebSocket
+                               ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    nginx API Gateway                        │
+│                     localhost:8000                          │
+│                                                             │
+│  /auth/*   /profile/*   /games/*   /game/*   /stats/*       │
+└──────┬──────────┬──────────┬──────────┬──────────┬──────────┘
+       │          │          │          │          │
+       ▼          ▼          ▼          ▼          ▼
+┌──────────┐ ┌──────────┐ ┌──────────────┐ ┌──────────┐ ┌──────────┐
+│  Auth    │ │ Profile  │ │ Matchmaking  │ │  Game    │ │  Stats   │
+│ Service  │ │ Service  │ │   Service    │ │ Engine   │ │ Service  │
+│  :8081   │ │  :8082   │ │    :8083     │ │  :8084   │ │  :8085   │
+└────┬─────┘ └────┬─────┘ └──────┬───────┘ └────┬─────┘ └────┬─────┘
+     │            │              │              │            │
+     ▼            ▼              ▼              ▼            ▼
+┌──────────┐ ┌──────────┐ ┌──────────────┐ ┌──────────┐ ┌──────────┐
+│ H2 Auth  │ │H2 Profile│ │ H2 Games     │ │ Memoria  │ │ H2 Stats │
+│  authdb  │ │profiledb │ │matchmakingdb │ │Partidas  │ │ statsdb  │
+└──────────┘ └──────────┘ └──────────────┘ └──────────┘ └──────────┘
+```
