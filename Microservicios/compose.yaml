@@ -6,8 +6,12 @@ services:
     container_name: ros-auth
     environment:
       - SPRING_PROFILES_ACTIVE=prod
+      - JWT_SECRET=${JWT_SECRET:-realmOfShadowsSecretKeyForJWTTokenGeneration2024}
+      - JWT_EXPIRATION=${JWT_EXPIRATION:-86400000}
+      - JAVA_OPTS=${JAVA_OPTS:-}
+    restart: unless-stopped
     ports:
-      - "8081:8080"
+      - "${AUTH_PORT:-8081}:8080"
     networks:
       - game-network
     healthcheck:
@@ -15,6 +19,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 20s
 
   profile-service:
     build:
@@ -23,17 +28,21 @@ services:
     container_name: ros-profile
     environment:
       - SPRING_PROFILES_ACTIVE=prod
+      - JAVA_OPTS=${JAVA_OPTS:-}
+    restart: unless-stopped
     ports:
-      - "8082:8080"
+      - "${PROFILE_PORT:-8082}:8080"
     networks:
       - game-network
     depends_on:
-      - auth-service
+      auth-service:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/profile/health"]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 20s
 
   matchmaking-service:
     build:
@@ -42,17 +51,21 @@ services:
     container_name: ros-matchmaking
     environment:
       - SPRING_PROFILES_ACTIVE=prod
+      - JAVA_OPTS=${JAVA_OPTS:-}
+    restart: unless-stopped
     ports:
-      - "8083:8080"
+      - "${MATCHMAKING_PORT:-8083}:8080"
     networks:
       - game-network
     depends_on:
-      - profile-service
+      profile-service:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/games/health"]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 20s
 
   game-engine-service:
     build:
@@ -61,17 +74,21 @@ services:
     container_name: ros-game-engine
     environment:
       - SPRING_PROFILES_ACTIVE=prod
+      - JAVA_OPTS=${JAVA_OPTS:-}
+    restart: unless-stopped
     ports:
-      - "8084:8080"
+      - "${GAME_ENGINE_PORT:-8084}:8080"
     networks:
       - game-network
     depends_on:
-      - matchmaking-service
+      matchmaking-service:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/game/health"]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 20s
 
   stats-service:
     build:
@@ -80,33 +97,62 @@ services:
     container_name: ros-stats
     environment:
       - SPRING_PROFILES_ACTIVE=prod
+      - JAVA_OPTS=${JAVA_OPTS:-}
+    restart: unless-stopped
     ports:
-      - "8085:8080"
+      - "${STATS_PORT:-8085}:8080"
     networks:
       - game-network
     depends_on:
-      - game-engine-service
+      game-engine-service:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/stats/health"]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 20s
 
   nginx-gateway:
     image: nginx:alpine
     container_name: ros-nginx
+    restart: unless-stopped
     ports:
-      - "8000:80"
+      - "${GATEWAY_PORT:-8000}:80"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     networks:
       - game-network
     depends_on:
-      - auth-service
-      - profile-service
-      - matchmaking-service
-      - game-engine-service
-      - stats-service
+      auth-service:
+        condition: service_healthy
+      profile-service:
+        condition: service_healthy
+      matchmaking-service:
+        condition: service_healthy
+      game-engine-service:
+        condition: service_healthy
+      stats-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: ros-frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"
+    networks:
+      - game-network
+    depends_on:
+      nginx-gateway:
+        condition: service_healthy
 
 networks:
   game-network:

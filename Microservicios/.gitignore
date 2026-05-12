@@ -4,6 +4,7 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 template.docx
+mejoras.md
 
 ### STS ###
 .apt_generated

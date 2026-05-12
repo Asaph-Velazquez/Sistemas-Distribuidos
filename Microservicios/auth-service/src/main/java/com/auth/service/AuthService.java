@@ -4,6 +4,7 @@ import com.auth.entity.User;
 import com.auth.repository.UserRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import javax.crypto.SecretKey;
@@ -14,12 +15,18 @@ import java.util.Date;
 public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final SecretKey key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-    private final long expiration = 86400000;
+    private final SecretKey key;
+    private final long expiration;
 
-    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public AuthService(
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder,
+            @Value("${jwt.secret}") String secret,
+            @Value("${jwt.expiration}") long expiration) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+        this.expiration = expiration;
     }
 
     public User register(String username, String password, String email) {

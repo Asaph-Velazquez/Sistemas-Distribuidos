@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { GameEngine } from './lib/engine/game-engine'
-import { syncManager } from './lib/sync-manager'
 
 function App() {
   const wsRef = useRef(null)
@@ -36,7 +35,7 @@ function App() {
   }, [enemies])
 
   const checkConnection = async () => {
-    try { await fetch('/api/games/health', { method: 'HEAD', signal: AbortSignal.timeout(2000) }); return true } catch { return false }
+    try { await fetch('/games/health', { method: 'GET', signal: AbortSignal.timeout(2000) }); return true } catch { return false }
   }
 
   useEffect(() => {
@@ -47,7 +46,6 @@ function App() {
         setGameMode('online')
         setStatus('Conectado. Crea o únete a una partida.')
         refreshGames()
-        connect()
       } else {
         setGameMode('offline')
         setStatus('Sin conexión. Usa Partida Local.')
@@ -73,19 +71,26 @@ function App() {
         if (result.success) { setGameState(engineRef.current.getState()); setStatus(`Te moviste ${key.toUpperCase()}`) }
         else setStatus(result.reason || 'No se puede mover')
       } else if (gameMode === 'online' && currentGamePort) {
-        send({ type: 'move', direction: key })
+        send({ type: 'move', gameId: currentGamePort, direction: key })
       }
     }
     window.addEventListener('keydown', movementHandler)
     return () => window.removeEventListener('keydown', movementHandler)
   }, [gameMode, playerName, currentGamePort])
 
-  const connect = () => {
-    if (wsRef.current?.readyState === WebSocket.OPEN) return
+  const connect = (gameId, player = playerName.trim()) => {
+    if (!gameId) return
+    if (wsRef.current?.readyState === WebSocket.OPEN) {
+      send({ type: 'join', gameId, playerName: player, userId: 0 })
+      return
+    }
     const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-    const ws = new WebSocket(`${wsProtocol}//${window.location.host}/ws/game`)
+    const ws = new WebSocket(`${wsProtocol}//${window.location.host}/game/ws/${gameId}`)
     wsRef.current = ws
-    ws.onopen = () => setStatus('WebSocket activo')
+    ws.onopen = () => {
+      setStatus('WebSocket activo')
+      send({ type: 'join', gameId, playerName: player, userId: 0 })
+    }
     ws.onclose = () => setStatus('WebSocket desconectado')
     ws.onerror = () => setStatus('Error WebSocket')
     ws.onmessage = (event) => {
@@ -103,15 +108,16 @@ function App() {
   }
 
   const send = (payload) => { if (wsRef.current?.readyState === WebSocket.OPEN) wsRef.current.send(JSON.stringify(payload)) }
-  const refreshGames = async () => { try { const res = await fetch('/api/games'); const data = await res.json(); setGames(data.games || []) } catch { setStatus('Error al cargar') } }
+  const refreshGames = async () => { try { const res = await fetch('/games'); const data = await res.json(); setGames(Array.isArray(data) ? data : data.games || []) } catch { setStatus('Error al cargar') } }
   const createGame = async () => {
     if (!playerName.trim() || !gameName.trim()) { setStatus('Ingresa jugador y nombre'); return }
     try {
-      const res = await fetch('/api/games/create', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: playerName.trim(), gameName: gameName.trim(), maxPlayers: Number(maxPlayers) }) })
+      const res = await fetch('/games/create', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ hostName: playerName.trim(), hostUserId: 0, gameName: gameName.trim(), maxPlayers: Number(maxPlayers) }) })
       const data = await res.json()
-      setCurrentGamePort(data.port)
+      const gameId = data.id ?? data.port
+      setCurrentGamePort(gameId)
       setStatus(`Partida ${data.gameName} creada`)
-      send({ type: 'join', port: data.port, playerName: playerName.trim() })
+      connect(gameId, playerName.trim())
       refreshGames()
     } catch { setStatus('Error al crear') }
   }
@@ -128,14 +134,15 @@ function App() {
   const joinGame = async () => {
     if (!playerName.trim() || !joinPort) { setStatus('Ingresa jugador y selecciona'); return }
     try {
-      const res = await fetch(`/api/games/${joinPort}/join`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ playerName: playerName.trim() }) })
+      const res = await fetch(`/games/${joinPort}/join`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ playerName: playerName.trim(), userId: 0 }) })
       if (!res.ok) { setStatus('No se pudo unir'); return }
       const data = await res.json()
-      setCurrentGamePort(data.port)
-      send({ type: 'join', port: Number(joinPort), playerName: playerName.trim() })
+      const gameId = data.id ?? Number(joinPort)
+      setCurrentGamePort(gameId)
+      connect(gameId, playerName.trim())
     } catch { setStatus('Error al unirse') }
   }
-  const exitOfflineMode = () => { engineRef.current = null; setGameMode('online'); setGameState(null); setStatus('Saliste del modo offline'); connect(); refreshGames() }
+  const exitOfflineMode = () => { engineRef.current = null; setGameMode('online'); setGameState(null); setStatus('Saliste del modo offline'); refreshGames() }
   const attackSelectedEnemy = () => {
     if (gameMode === 'offline' && engineRef.current) {
       const target = selectedEnemyKey ? enemies[selectedEnemyKey] : null
@@ -148,7 +155,7 @@ function App() {
       return
     }
     const target = selectedEnemyKey ? enemies[selectedEnemyKey] : null
-    send({ type: 'attack', targetX: target?.x, targetY: target?.y })
+    send({ type: 'attack', gameId: currentGamePort, targetX: target?.x, targetY: target?.y })
   }
 
   const renderBoard = () => {
@@ -191,9 +198,9 @@ function App() {
           </div>
           <div className="mt-5 rounded-lg border border-white/10 bg-black/25 p-3">
             <p className="mb-2 text-xs uppercase tracking-[0.2em] text-stone-400">{gameMode === 'offline' ? 'Partida Local' : isOnline ? 'Partidas disponibles' : 'Sin conexión'}</p>
-            {gameMode === 'offline' ? (<div className="rounded-lg border border-amber-500/30 bg-amber-900/20 p-3"><p className="text-sm text-amber-200">Jugando offline</p><p className="text-xs text-amber-300/70">{gameName}</p></div>) : isOnline ? (<><div className="max-h-52 space-y-2 overflow-auto pr-1">{games.length === 0 && <p className="text-sm text-stone-500">No hay partidas</p>}{games.map((g) => <button key={g.port} className="w-full rounded-lg border border-white/10 bg-slate-900/60 p-3 text-left" onClick={() => setJoinPort(String(g.port))}><p className="text-sm font-semibold text-stone-200">{g.gameName}</p><p className="text-xs text-stone-400">{g.hostName} · {g.currentPlayers}/{g.maxPlayers}</p></button>)}</div><div className="mt-3 flex gap-2"><input className="w-full rounded-lg border border-white/15 bg-black/30 px-3 py-2 text-stone-100" placeholder="Puerto" value={joinPort} onChange={(e) => setJoinPort(e.target.value)} /><button className="rounded-lg bg-violet-700 px-4 py-2 font-semibold text-violet-50" onClick={joinGame}>Unirse</button></div></>) : <p className="text-sm text-stone-400">Sin conexión al servidor</p>}
+            {gameMode === 'offline' ? (<div className="rounded-lg border border-amber-500/30 bg-amber-900/20 p-3"><p className="text-sm text-amber-200">Jugando offline</p><p className="text-xs text-amber-300/70">{gameName}</p></div>) : isOnline ? (<><div className="max-h-52 space-y-2 overflow-auto pr-1">{games.length === 0 && <p className="text-sm text-stone-500">No hay partidas</p>}{games.map((g) => <button key={g.id ?? g.port} className="w-full rounded-lg border border-white/10 bg-slate-900/60 p-3 text-left" onClick={() => setJoinPort(String(g.id ?? g.port))}><p className="text-sm font-semibold text-stone-200">{g.gameName}</p><p className="text-xs text-stone-400">{g.hostName} · {g.currentPlayers}/{g.maxPlayers}</p></button>)}</div><div className="mt-3 flex gap-2"><input className="w-full rounded-lg border border-white/15 bg-black/30 px-3 py-2 text-stone-100" placeholder="ID partida" value={joinPort} onChange={(e) => setJoinPort(e.target.value)} /><button className="rounded-lg bg-violet-700 px-4 py-2 font-semibold text-violet-50" onClick={joinGame}>Unirse</button></div></>) : <p className="text-sm text-stone-400">Sin conexión al servidor</p>}
           </div>
-          {gameMode === 'offline' ? (<button className="mt-4 w-full rounded-lg border border-rose-500/30 bg-rose-900/20 px-3 py-2 text-sm text-rose-200" onClick={exitOfflineMode}>Salir del Modo Local</button>) : isOnline && (<button className="mt-4 w-full rounded-lg border border-white/20 bg-black/20 px-3 py-2 text-sm text-stone-200" onClick={connect}>Reconectar</button>)}
+          {gameMode === 'offline' ? (<button className="mt-4 w-full rounded-lg border border-rose-500/30 bg-rose-900/20 px-3 py-2 text-sm text-rose-200" onClick={exitOfflineMode}>Salir del Modo Local</button>) : isOnline && currentGamePort && (<button className="mt-4 w-full rounded-lg border border-white/20 bg-black/20 px-3 py-2 text-sm text-stone-200" onClick={() => connect(currentGamePort)}>Reconectar</button>)}
         </aside>
         <section className="space-y-4">
           <div className="game-card rounded-2xl p-4 md:p-6">

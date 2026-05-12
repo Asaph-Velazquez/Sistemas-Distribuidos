@@ -33,7 +33,7 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
         runtimeCaching: [
           {
-            urlPattern: /^https:\/\/localhost:8080\/api\/.*/i,
+            urlPattern: /\/(auth|profile|games|game|stats)\/.*/i,
             handler: 'NetworkFirst',
             options: {
               cacheName: 'api-cache',
@@ -53,13 +53,29 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      '/api': {
-        target: 'http://localhost:8080',
+      '/auth': {
+        target: 'http://localhost:8000',
         changeOrigin: true,
       },
-      '/ws': {
-        target: 'ws://localhost:8080',
+      '/profile': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+      },
+      '/games': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+      },
+      '/stats': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+      },
+      '/game/ws': {
+        target: 'ws://localhost:8000',
         ws: true,
+      },
+      '/game': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
       },
     },
   },
