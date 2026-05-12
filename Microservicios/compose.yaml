@@ -1,0 +1,113 @@
+services:
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: ../Dockerfile.base
+    container_name: ros-auth
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+    ports:
+      - "8081:8080"
+    networks:
+      - game-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/auth/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  profile-service:
+    build:
+      context: ./profile-service
+      dockerfile: ../Dockerfile.base
+    container_name: ros-profile
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+    ports:
+      - "8082:8080"
+    networks:
+      - game-network
+    depends_on:
+      - auth-service
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/profile/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  matchmaking-service:
+    build:
+      context: ./matchmaking-service
+      dockerfile: ../Dockerfile.base
+    container_name: ros-matchmaking
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+    ports:
+      - "8083:8080"
+    networks:
+      - game-network
+    depends_on:
+      - profile-service
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/games/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  game-engine-service:
+    build:
+      context: ./game-engine-service
+      dockerfile: ../Dockerfile.base
+    container_name: ros-game-engine
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+    ports:
+      - "8084:8080"
+    networks:
+      - game-network
+    depends_on:
+      - matchmaking-service
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/game/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  stats-service:
+    build:
+      context: ./stats-service
+      dockerfile: ../Dockerfile.base
+    container_name: ros-stats
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+    ports:
+      - "8085:8080"
+    networks:
+      - game-network
+    depends_on:
+      - game-engine-service
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/stats/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  nginx-gateway:
+    image: nginx:alpine
+    container_name: ros-nginx
+    ports:
+      - "8000:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      - game-network
+    depends_on:
+      - auth-service
+      - profile-service
+      - matchmaking-service
+      - game-engine-service
+      - stats-service
+
+networks:
+  game-network:
+    driver: bridge

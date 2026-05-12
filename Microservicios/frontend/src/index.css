@@ -1,0 +1,109 @@
+@import "tailwindcss";
+
+:root {
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  color: #e7e3d8;
+  background: #080b11;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(1200px 500px at 10% -10%, rgba(119, 38, 28, 0.35), transparent 70%),
+    radial-gradient(900px 420px at 110% 20%, rgba(27, 62, 88, 0.35), transparent 70%),
+    linear-gradient(180deg, #0d121b 0%, #080b11 100%);
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.game-card {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(160deg, rgba(20, 25, 36, 0.86), rgba(9, 12, 18, 0.92));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 16px 40px rgba(0, 0, 0, 0.35);
+}
+
+.board-row {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 34px;
+  gap: 2px;
+  margin-bottom: 2px;
+}
+
+.board-tile {
+  width: 34px;
+  height: 34px;
+  border-radius: 6px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tile-floor {
+  background: linear-gradient(180deg, #172231, #0d141f);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.tile-wall {
+  background: linear-gradient(180deg, #3c4048, #262a30);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.tile-floor-glyph,
+.tile-wall-glyph {
+  font-size: 10px;
+  opacity: 0.45;
+}
+
+.tile-floor-glyph {
+  color: #6f7b91;
+}
+
+.tile-wall-glyph {
+  color: #bec5d3;
+}
+
+.unit {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+}
+
+.unit-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.unit-hp {
+  position: absolute;
+  right: 2px;
+  top: 2px;
+  font-size: 9px;
+  font-weight: 700;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.65);
+  border-radius: 4px;
+  padding: 0 3px;
+}
+
+.unit-me {
+  background: radial-gradient(circle at 50% 35%, rgba(103, 232, 249, 0.25), rgba(34, 211, 238, 0.08));
+  outline: 1px solid rgba(103, 232, 249, 0.45);
+}
+
+.unit-player {
+  background: radial-gradient(circle at 50% 35%, rgba(96, 165, 250, 0.2), rgba(37, 99, 235, 0.08));
+  outline: 1px solid rgba(96, 165, 250, 0.4);
+}
+
+.unit-enemy {
+  background: radial-gradient(circle at 50% 35%, rgba(251, 113, 133, 0.28), rgba(225, 29, 72, 0.1));
+  outline: 1px solid rgba(251, 113, 133, 0.5);
+}
