@@ -1,8 +1,5 @@
 package backend.entities;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Player - Representa un jugador en el juego
  * 

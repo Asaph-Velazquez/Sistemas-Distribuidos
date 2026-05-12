@@ -1,10 +1,8 @@
 package backend.world;
 
 import backend.combat.Enemy;
-import backend.entities.Player;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
 /**
