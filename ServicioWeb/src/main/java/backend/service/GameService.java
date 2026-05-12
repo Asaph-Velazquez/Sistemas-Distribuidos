@@ -6,10 +6,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * GameService - Gestiona el estado de una sola instancia de juego
- * 
- * NO es un @Service de Spring - se crea una instancia por cada juego
- * Reemplaza el Server.java basado en sockets con gestión de estado en memoria
- * 
  * Cada instancia de GameService gestiona:
  *   - Un GameState (mundo, jugadores, tiempo)
  *   - Generación de IDs de jugador (AtomicInteger para seguridad en hilos)

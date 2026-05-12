@@ -27,8 +27,6 @@ public class GameState {
     
     private int worldTime = 0;
     private World world;
-    // TODO: CombatSystem será implementado en otra tarea
-    // private CombatSystem combatSystem;
     
     // ============================================
     // INFORMACIÓN DE LA PARTIDA (Multi-Servidor)
@@ -45,8 +43,6 @@ public class GameState {
      */
     public GameState(World world) {
         this.world = world;
-        // TODO: Inicializar CombatSystem cuando se implemente
-        // this.combatSystem = new CombatSystem(this);
     }
     
     // ============================================
@@ -102,11 +98,6 @@ public class GameState {
         running = false;
     }
     
-    // TODO: Método getCombatSystem() será implementado cuando exista CombatSystem
-    // public CombatSystem getCombatSystem(){
-    //     return combatSystem;
-    // }
-
     public World getWorld() {
         return world;
     }
@@ -127,7 +118,6 @@ public class GameState {
      * @param id ID del jugador a eliminar
      */
     public synchronized void removePlayer(int id) {
-        // TODO: Llamar a combatSystem.removePlayer(id) cuando se implemente
         // combatSystem.removePlayer(id);
         players.remove(id);
     }

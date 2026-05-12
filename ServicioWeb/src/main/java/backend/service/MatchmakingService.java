@@ -62,12 +62,7 @@ public class MatchmakingService {
         
         GameService gameService = new GameService(gameState);
         
-        // Register the game
-        // Equivalente a: activeGames.put(port, gameInfo) en MatchmakingServer
         activeGames.put(port, gameService);
-        
-        // Nota: Los jugadores se añaden via WebSocket, no aquí
-        // Esto permite que el mismo cliente cree y se una sin duplicar
         
         return new GameResponseDTO(
             port,
@@ -109,10 +104,6 @@ public class MatchmakingService {
     /**
      * Join a game by port
      * Thread-safe: Individual GameService handles synchronization
-     * 
-     * Equivalente a: MatchmakingServer.processRequest("JOIN:...") + Server.accept()
-     * Diferencia: No crea socket, solo agrega jugador al GameService
-     * 
      * @param port Puerto de la partida
      * @param request DTO con playerName
      * @return GameResponseDTO con información actualizada de la partida
@@ -147,8 +138,6 @@ public class MatchmakingService {
     /**
      * Delete a game
      * Thread-safe: ConcurrentHashMap.remove() is atomic
-     * 
-     * Equivalente a: MatchmakingServer.processRequest("DELETE:...")
      * 
      * @param port Puerto de la partida a eliminar
      */
