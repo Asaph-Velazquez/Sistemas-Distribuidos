@@ -1,8 +1,8 @@
-# Sistemas Distribuidos
+# Distributed Systems Projects
 
-Proyectos desarrollados para la materia de Sistemas Distribuidos, implementando arquitecturas cliente-servidor y comunicación mediante sockets.
+Colección de implementaciones Java y web para comunicación distribuida: sockets TCP, múltiples clientes, múltiples servidores, RMI, REST, WebSocket, PWA y microservicios.
 
-## 📁 Proyectos
+## Proyectos
 
 ### 1. Multihilo
 Juego en consola Java con sistema multihilo para gestión concurrente.
@@ -288,13 +288,8 @@ Evolución del proyecto web hacia una arquitectura de **microservicios** con ser
 | Game Engine | `/game/*` |
 | Stats | `/stats/*` |
 
-**Estado de revisión:**
-- La separación por dominio está bien definida.
-- Los servicios tienen estructura independiente y endpoints de health.
-- El gateway centraliza el acceso externo.
-- La integración completa requiere alinear contratos entre frontend, nginx y backend, especialmente en rutas REST y WebSocket.
-- El reporte técnico completo, hallazgos y mejoras recomendadas están en [`Microservicios/README.md`](Microservicios/README.md).
-
+**Documentación:**
+- Guía de ejecución y despliegue: [`Microservicios/README.md`](Microservicios/README.md)
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    Cliente / Frontend                       │
