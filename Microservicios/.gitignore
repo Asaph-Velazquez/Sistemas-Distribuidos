@@ -5,6 +5,7 @@ target/
 !**/src/test/**/target/
 template.docx
 mejoras.md
+infra/
 
 ### STS ###
 .apt_generated

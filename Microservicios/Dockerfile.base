@@ -1,12 +1,17 @@
-FROM eclipse-temurin:17-jdk-alpine AS build
-WORKDIR /app
-COPY pom.xml .
+FROM maven:3.9.9-eclipse-temurin-17 AS build
+WORKDIR /build
+
+COPY pom.xml ./
+RUN mvn -B -q -DskipTests dependency:go-offline
+
 COPY src ./src
-RUN apk add --no-cache maven && mvn package -DskipTests && rm -rf ~/.m2
+RUN mvn -B -DskipTests package
 
 FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 RUN apk add --no-cache curl
-COPY --from=build /app/target/*.jar app.jar
+
+COPY --from=build /build/target/*.jar /app/app.jar
+
 EXPOSE 8080
-ENTRYPOINT ["sh", "-c", "java ${JAVA_OPTS:-} -jar app.jar"]
+ENTRYPOINT ["sh", "-c", "java ${JAVA_OPTS:-} -jar /app/app.jar"]
