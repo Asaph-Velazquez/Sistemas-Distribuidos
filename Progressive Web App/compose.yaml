@@ -5,9 +5,10 @@ services:
       dockerfile: Dockerfile
     container_name: ros-backend
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-prod}
+      - JAVA_OPTS=${JAVA_OPTS:-}
     ports:
-      - "8080:8080"
+      - "${BACKEND_PORT:-8080}:8080"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/api/games/health"]
       interval: 10s
@@ -25,5 +26,11 @@ services:
       backend:
         condition: service_healthy
     ports:
-      - "5173:80"
+      - "${FRONTEND_PORT:-5173}:80"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://127.0.0.1/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     restart: unless-stopped
