@@ -108,7 +108,16 @@ function App() {
   }
 
   const send = (payload) => { if (wsRef.current?.readyState === WebSocket.OPEN) wsRef.current.send(JSON.stringify(payload)) }
-  const refreshGames = async () => { try { const res = await fetch('/games'); const data = await res.json(); setGames(Array.isArray(data) ? data : data.games || []) } catch { setStatus('Error al cargar') } }
+  const refreshGames = async () => {
+    try {
+      const res = await fetch('/games/')
+      const data = await res.json()
+      setGames(Array.isArray(data) ? data : data.games || [])
+      setStatus((current) => (current === 'Error al cargar' ? 'Conectado. Crea o unete a una partida.' : current))
+    } catch {
+      setStatus('Error al cargar')
+    }
+  }
   const createGame = async () => {
     if (!playerName.trim() || !gameName.trim()) { setStatus('Ingresa jugador y nombre'); return }
     try {
